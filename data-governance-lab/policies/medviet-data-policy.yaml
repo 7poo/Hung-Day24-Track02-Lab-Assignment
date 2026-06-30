@@ -14,6 +14,16 @@ rules:
     action: allow
     description: "Analysts may read aggregated metrics (no PII)"
 
+  - name: allow-data-analyst-read-aggregated
+    condition: "agent.role == 'data_analyst' and action.type == 'read' and action.dataset == 'aggregated'"
+    action: allow
+    description: "Data analyst agents may only read aggregated datasets"
+
+  - name: require-approval-delete
+    condition: "action.type == 'delete'"
+    action: require_approval
+    description: "Human approval is required before any delete action"
+
   - name: block-raw-pii
     condition: "action.dataset == 'raw_pii'"
     action: deny
@@ -24,7 +34,7 @@ rules:
     action: deny
     description: "NĐ13 data localization — no export outside Vietnam"
 
-  - name: block-destructive
-    condition: "action.type in ['delete', 'drop', 'truncate']"
+  - name: block-destructive-without-approval
+    condition: "action.type in ['drop', 'truncate']"
     action: deny
-    description: "Destructive data operations are never allowed for agents"
+    description: "Irreversible schema/data destruction is never allowed for agents"

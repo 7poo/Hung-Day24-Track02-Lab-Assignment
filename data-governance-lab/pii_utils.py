@@ -20,7 +20,7 @@ def _cccd_recognizer() -> PatternRecognizer:
     return PatternRecognizer(
         supported_entity="VN_CCCD",
         supported_language=VI_LANGUAGE,
-        patterns=[Pattern(name="cccd_pattern", regex=r"\b\d{12}\b", score=0.9)],
+        patterns=[Pattern(name="cccd_pattern", regex=r"\b\d{10,12}\b", score=0.9)],
         context=["cccd", "căn cước", "chứng minh", "cmnd"],
     )
 
@@ -29,7 +29,7 @@ def _phone_recognizer() -> PatternRecognizer:
     return PatternRecognizer(
         supported_entity="VN_PHONE",
         supported_language=VI_LANGUAGE,
-        patterns=[Pattern(name="vn_phone", regex=r"\b0[35789]\d{8}\b", score=0.85)],
+        patterns=[Pattern(name="vn_phone", regex=r"\b0?[35789]\d{8}\b", score=0.85)],
         context=["điện thoại", "sdt", "phone", "liên hệ"],
     )
 

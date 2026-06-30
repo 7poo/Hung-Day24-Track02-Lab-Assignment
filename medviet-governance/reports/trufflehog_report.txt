@@ -1,0 +1,1 @@
+trufflehog is not installed in this local environment; install it and run: trufflehog git file://. --only-verified

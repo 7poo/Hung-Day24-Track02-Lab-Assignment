@@ -1,11 +1,18 @@
 # src/pii/anonymizer.py
 import pandas as pd
+import hashlib
 from presidio_anonymizer import AnonymizerEngine
 from presidio_anonymizer.entities import OperatorConfig
 from faker import Faker
 from .detector import build_vietnamese_analyzer, detect_pii
 
 fake = Faker("vi_VN")
+
+def _fake_cccd() -> str:
+    return fake.numerify(text="############")
+
+def _fake_phone() -> str:
+    return "0" + fake.random_element(elements=("3", "5", "7", "8", "9")) + fake.numerify(text="########")
 
 class MedVietAnonymizer:
 
@@ -35,18 +42,27 @@ class MedVietAnonymizer:
                 "PERSON": OperatorConfig("replace", 
                           {"new_value": fake.name()}),
                 "EMAIL_ADDRESS": OperatorConfig("replace", 
-                                 {"new_value": ___}),   # TODO: fake email
+                                 {"new_value": fake.email()}),
                 "VN_CCCD": OperatorConfig("replace", 
-                           {"new_value": ___}),          # TODO: fake CCCD
+                           {"new_value": _fake_cccd()}),
                 "VN_PHONE": OperatorConfig("replace", 
-                            {"new_value": ___}),         # TODO: fake phone
+                            {"new_value": _fake_phone()}),
             }
         elif strategy == "mask":
-            # TODO: implement masking
-            pass
+            operators = {
+                "DEFAULT": OperatorConfig("mask", {
+                    "masking_char": "*",
+                    "chars_to_mask": 80,
+                    "from_end": True
+                })
+            }
         elif strategy == "hash":
-            # TODO: implement hashing dùng sha256
-            pass
+            digest = hashlib.sha256(text.encode("utf-8")).hexdigest()
+            operators = {
+                "DEFAULT": OperatorConfig("replace", {"new_value": digest})
+            }
+        else:
+            raise ValueError(f"Unsupported anonymization strategy: {strategy}")
 
         anonymized = self.anonymizer.anonymize(
             text=text,
@@ -65,8 +81,18 @@ class MedVietAnonymizer:
         """
         df_anon = df.copy()
 
-        # TODO: Xử lý từng cột PII
-        # Gợi ý: dùng df.apply() hoặc list comprehension
+        if "ho_ten" in df_anon:
+            df_anon["ho_ten"] = [fake.name() for _ in range(len(df_anon))]
+        if "bac_si_phu_trach" in df_anon:
+            df_anon["bac_si_phu_trach"] = [fake.name() for _ in range(len(df_anon))]
+        if "dia_chi" in df_anon:
+            df_anon["dia_chi"] = [fake.address() for _ in range(len(df_anon))]
+        if "email" in df_anon:
+            df_anon["email"] = [fake.email() for _ in range(len(df_anon))]
+        if "cccd" in df_anon:
+            df_anon["cccd"] = [_fake_cccd() for _ in range(len(df_anon))]
+        if "so_dien_thoai" in df_anon:
+            df_anon["so_dien_thoai"] = [_fake_phone() for _ in range(len(df_anon))]
 
         return df_anon
 

@@ -1,0 +1,11 @@
+.vault_key
+.spacy_vi_blank/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ipynb_checkpoints/
+.vault_key_demo
+.spacy_models/
+
+# README submission note: do not submit raw patient data.
+data/raw/

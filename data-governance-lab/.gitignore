@@ -1,0 +1,5 @@
+.spacy_models/
+.vault_key_demo
+.ipynb_checkpoints/
+__pycache__/
+*.py[cod]

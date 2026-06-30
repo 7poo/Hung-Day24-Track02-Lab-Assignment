@@ -17,7 +17,7 @@
 
 ## D. DPO Appointment
 - [ ] Đã bổ nhiệm Data Protection Officer
-- [ ] DPO có thể liên hệ tại: ___
+- [ ] DPO có thể liên hệ tại: dpo@medviet.local
 
 ## E. Technical Controls (mapping từ requirements)
 | NĐ13 Requirement | Technical Control | Status | Owner |
@@ -30,3 +30,9 @@
 
 ## F. TODO: Điền vào phần còn thiếu
 Với mỗi row còn "⬜ Todo", mô tả technical solution cụ thể bạn sẽ implement.
+
+- Audit logging: Bổ sung middleware FastAPI ghi `request_id`, user, role, endpoint, action, status code và timestamp vào log bất biến; đồng bộ log sang SIEM đặt tại VN và cấu hình retention tối thiểu 12 tháng.
+- Breach detection: Dùng Prometheus scrape API/error/auth metrics, cấu hình alert khi có spike 401/403, truy cập raw PII bất thường, hoặc export restricted data ra ngoài VN; gửi cảnh báo qua incident channel và kích hoạt runbook 72h.
+- Consent management: Tạo bảng `consent_records` gồm patient_id, purpose, granted_at, revoked_at; pipeline training chỉ đọc bản ghi còn hiệu lực.
+- Right to erasure: Thêm job xóa hoặc loại khỏi tập training đối với patient_id đã rút consent, kèm audit trail cho thao tác xóa.
+- Encryption completion: Dùng `SimpleVault` cho local dev, thay KEK file bằng KMS/HSM ở production, rotate DEK theo batch dữ liệu và không đưa `.vault_key` vào artifact nộp bài.
